@@ -1,0 +1,40 @@
+{
+  "name": "yiitron/novakit",
+  "description": "Core API library",
+  "keywords": [
+    "yii2",
+    "framework",
+    "omnibase",
+    "helpers"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Ananda Douglas",
+      "email": "douglasdaggs@gmail.com",
+      "homepage": "https://www.crackit.co.ke/",
+      "role": "Project lead"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.0",
+    "google/apiclient": "^2.15.1",
+    "firebase/php-jwt": "^6.10"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "yiitron\\novakit\\": "src/"
+    }
+  }
+}
