@@ -152,6 +152,10 @@ EOD;
             $this->render("model.php")
         );
         $files[] = new CodeFile(
+            $modulePath . '/hooks/Menu.php',
+            $this->render("menu.php")
+        );
+        $files[] = new CodeFile(
             $modulePath . '/models/searches/readme.txt',
             $this->render("readme.php")
         );

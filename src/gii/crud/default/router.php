@@ -31,11 +31,11 @@ return [
  *              @OA\Property(property="totalPages", type="integer",example="2"),
  *              @OA\Property(property="currentPage", type="integer",example="1"),
  *              @OA\Property(property="paginationLinks", type="object",
- *                  @OA\Property(property="first", type="string",example="v1/<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
- *                  @OA\Property(property="previous", type="string",example="v1/<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
- *                  @OA\Property(property="self", type="string",example="v1/<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
- *                  @OA\Property(property="next", type="string",example="v1/<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
- *                  @OA\Property(property="last", type="string",example="v1/<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
+ *                  @OA\Property(property="first", type="string",example="<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
+ *                  @OA\Property(property="previous", type="string",example="<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
+ *                  @OA\Property(property="self", type="string",example="<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
+ *                  @OA\Property(property="next", type="string",example="<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
+ *                  @OA\Property(property="last", type="string",example="<?=$_ENV['APP_VERSION']?>/<?=$module.$items?>?page=1&per-page=25"),
  *              ),
  *          )
  *      )

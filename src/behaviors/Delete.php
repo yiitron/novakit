@@ -1,8 +1,12 @@
 <?php
+
 namespace yiitron\novakit\behaviors;
-use yii\behaviors\AttributeBehavior;
-use yii\db\ActiveRecord;
+
+use Yii;
+use yii\helpers\Json;
 use yii\db\Expression;
+use yii\db\ActiveRecord;
+use yii\behaviors\AttributeBehavior;
 
 class Delete extends AttributeBehavior
 {
@@ -27,13 +31,9 @@ class Delete extends AttributeBehavior
     /**
      * @inheritdoc
      */
-    protected function getValue($event)
+    protected function getValue($event = null)
     {
-        if ($this->value instanceof Expression) {
-            return $this->value;
-        } else {
-            return $this->value !== null ? call_user_func($this->value, $event) : 1;
-        }
+        return $this->value instanceof Expression ? $this->value : ($this->value !== null ? call_user_func($this->value, $event) : 1);
     }
 
     /**
@@ -41,11 +41,7 @@ class Delete extends AttributeBehavior
      */
     protected function getRestoreValue()
     {
-        if ($this->restoreValue instanceof Expression) {
-            return $this->restoreValue;
-        } else {
-            return $this->restoreValue !== null ? call_user_func($this->restoreValue) : 0;
-        }
+        return $this->restoreValue instanceof Expression ? $this->restoreValue : ($this->restoreValue !== null ? call_user_func($this->restoreValue) : 0);
     }
 
     /**
@@ -72,11 +68,8 @@ class Delete extends AttributeBehavior
      */
     public function remove()
     {
-        // set attribute value
         $attribute = $this->attribute;
-        $this->owner->$attribute = $this->getValue(null);
-
-        // save record
+        $this->owner->$attribute = $this->getValue();
         $this->owner->save(false, [$attribute]);
     }
 
@@ -85,11 +78,8 @@ class Delete extends AttributeBehavior
      */
     public function restore()
     {
-        // set attribute value
         $attribute = $this->attribute;
         $this->owner->$attribute = $this->getRestoreValue();
-
-        // save record
         $this->owner->save(false, [$attribute]);
     }
 
@@ -98,10 +88,9 @@ class Delete extends AttributeBehavior
      */
     public function forceDelete()
     {
-        // detach behaviour and delete normally
         $model = $this->owner;
         $this->detach();
-
         $model->delete();
     }
+
 }

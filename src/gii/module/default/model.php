@@ -15,12 +15,8 @@ namespace <?= $generator->moduleID ?>\hooks;
  *     version="1.0.0",
  *     title="<?= $generator->moduleID ?> Module",
  *     @OA\Contact(
- *         email="admin@crackit.co.ke",
+ *         email="douglasdaggs@gmail.com",
  *         name="Ananda Douglas"
- *     ),
- *     @OA\License(
- *         name="Apache 2.0",
- *         url="http://www.apache.org/licenses/LICENSE-2.0.html"
  *     )
  * )
  */  

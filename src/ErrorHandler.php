@@ -1,7 +1,7 @@
 <?php
 namespace yiitron\novakit;
 
-use Yii;
+use Yii; 
 use yii\web\Response;
 use yii\base\Exception;
 use yii\web\HttpException;
@@ -43,7 +43,7 @@ class ErrorHandler extends \yii\base\ErrorHandler
 
         $array = [
             'statusCode'=> $exception->statusCode ? $exception->statusCode : 500,
-            'errorMessage' => $exception->getMessage(),
+            'message' => $exception->getMessage(),
             //'code' => $exception->getCode(),
         ];
         if (($prev = $exception->getPrevious()) !== null) {
@@ -51,7 +51,7 @@ class ErrorHandler extends \yii\base\ErrorHandler
         }
 
         Yii::$app->response->statusCode = $array['statusCode'];
-        return ['errorPayload'=>$array];
+        return ['alertifyPayload'=>$array];
     }
 
     

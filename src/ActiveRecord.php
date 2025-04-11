@@ -40,7 +40,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
 		}
 		return parent::afterFind();
 	}
-	protected static function getCacheKey($id, $all = false)
+	public static function getCacheKey($id, $all = false)
 	{
 		$class = explode('\\', static::class);
 		if (is_array($id)) {
@@ -113,5 +113,5 @@ class ActiveRecord extends \yii\db\ActiveRecord
 		parent::afterDelete();
 		$cacheKey = static::getCacheKey($this->primaryKey);
 		Yii::$app->redis->del($cacheKey); // Remove cache for deleted model
-	}
+	}	
 }
