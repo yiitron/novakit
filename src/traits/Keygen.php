@@ -3,15 +3,15 @@
 namespace yiitron\novakit\traits;
 
 use Yii;
-use helpers\models\AutoIncrement;
 
 
 trait Keygen
 {
-	public  function uid($type, $save = false, $codeType = 'cym')
+	public function pkHash($id, $module = null)
 	{
-		//return AutoIncrement::generate($type,$save,$codeType);
-
+		$module = $module ?? (Yii::$app instanceof \yii\web\Application && Yii::$app->controller ? Yii::$app->controller->module->id : $module);
+		$key = hash_hmac('sha256', md5($id), sha1(Yii::$app->id . '/' . $module));
+		return sprintf('%x', crc32($key));
 	}
 	public  function cryptID($numerical = false, $randandomStringLength = 15)
 	{
@@ -27,7 +27,6 @@ trait Keygen
 			$string = $unique;
 			$i = 0;
 			$strlen = strlen($string);
-			//-evis101
 			while ($i < $strlen) {
 				$tmp = $string[$i];
 				if (rand() % 2 == 0) $tmp = strtoupper($tmp);
@@ -41,7 +40,7 @@ trait Keygen
 		}
 		return $string;
 	}
-	public  function password($length = 8, $add_dashes = true, $available_sets = 'luds')
+	public  function generatePassword($length = 8, $add_dashes = true, $available_sets = 'luds')
 	{
 		$sets = array();
 		if (strpos($available_sets, 'l') !== false)
@@ -77,10 +76,4 @@ trait Keygen
 		$dash_str .= $password;
 		return $dash_str;
 	}
-	public function createSchema($name)
-    {
-        $this->db = Yii::$app->get('tenantDB');
-        $this->db->createCommand("CREATE SCHEMA IF NOT EXISTS $name")->execute();
-    }
-	
 }

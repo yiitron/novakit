@@ -14,6 +14,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
 {
 	use Keygen;
 	use Status;
+	use ServiceConsumer;
 	public $recordStatus;
 	public function behaviors()
 	{

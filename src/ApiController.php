@@ -9,6 +9,7 @@ use yii\rest\Controller;
 
 class ApiController extends Controller
 {
+    use ServiceConsumer;
     public $enableCsrfValidation = false;
 
     public function behaviors(): array

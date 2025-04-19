@@ -3,7 +3,7 @@ $item =$generator->getControllerID();
 $module = (explode('\\',$generator->controllerClass))[0].'/';
 $items=\yii\helpers\Inflector::pluralize($item);
 $model = \yii\helpers\StringHelper::basename($generator->modelClass);
-echo "<?php\n";
+echo "<?php\n"; 
 ?>
 return [
 //security={{}} #disable authorization on an endpoint
@@ -14,11 +14,6 @@ return [
  *   @OA\Parameter(description="Page No.",in="query",name="page", @OA\Schema(type="integer")),
  *   @OA\Parameter(description="Page Size",in="query",name="per-page", @OA\Schema(type="integer")),
  *   @OA\Parameter(description="Search",in="query",name="q", @OA\Schema(type="string")),
- *
- <?php foreach ($generator->getTableSchema()->columns as $data): ?>
- *    @OA\Parameter(description="<?=\yii\helpers\Inflector::camel2words($data->name)?>",in="query",name="_<?=$data->name?>", @OA\Schema(type="<?=$data->type?>")),
-<?php endforeach; ?>
- *
  *   @OA\Response(
  *     response=200,
  *     description="Returns a data payload object for all <?=$module.$items?>",
@@ -63,8 +58,11 @@ return [
  *    @OA\JsonContent(
  *       @OA\Property(property="dataPayload", type="object",
  *          @OA\Property(property="data", type="object",ref="#/components/schemas/<?=$model?>"),
- *          @OA\Property(property="toastMessage", type="string", example="<?=$item?> created succefully"),
- *          @OA\Property(property="toastTheme", type="string",example="success"),
+ *       ),
+ *       @OA\Property(property="alertifyPayload", type="object",
+ *          @OA\Property(property="message", type="string", example="<?=$item?> created succefully"),
+ *          @OA\Property(property="theme", type="string",example="success"),
+ *          @OA\Property(property="type", type="string",example="alert"),
  *       )
  *    )
  * ),
@@ -74,8 +72,6 @@ return [
  *    @OA\JsonContent(
  *       @OA\Property(property="errorPayload", type="object",
  *          @OA\Property(property="errors", type="object", ref="#/components/schemas/<?=$model?>"),
- *          @OA\Property(property="toastMessage", type="string", example="Some data could not be validated"),
- *          @OA\Property(property="toastTheme", type="string",example="danger"),
  *       )
  *    )
  * )
@@ -100,7 +96,7 @@ return [
  *      @OA\JsonContent(
  *           @OA\Property(property="errorPayload", type="object",
  *               @OA\Property(property="statusCode", type="integer", example=404 ),
- *               @OA\Property(property="errorMessage", type="string", example="Not found" )
+ *               @OA\Property(property="message", type="string", example="The requested <?=strtolower($model);?> does not exist" )
  *           )
  *      )
  *   ),
@@ -127,11 +123,33 @@ return [
 *       @OA\JsonContent(
 *          @OA\Property(property="dataPayload", type="object",
 *             @OA\Property(property="data", type="object",ref="#/components/schemas/<?=$model?>"),
-*             @OA\Property(property="toastMessage", type="string", example="<?=$item?> updated succefully"),
-*             @OA\Property(property="toastTheme", type="string",example="success"),
-*          )
+*          ),
+ *         @OA\Property(property="alertifyPayload", type="object",
+ *            @OA\Property(property="message", type="string", example="<?=$item?> updated succefully"),
+ *            @OA\Property(property="theme", type="string",example="success"),
+ *            @OA\Property(property="type", type="string",example="alert"),
+ *         )
 *       )
 *    ),
+ *   @OA\Response(
+ *     response=404,
+ *     description="Resource not found",
+ *      @OA\JsonContent(
+ *           @OA\Property(property="errorPayload", type="object",
+ *               @OA\Property(property="statusCode", type="integer", example=404 ),
+ *               @OA\Property(property="message", type="string", example="The requested <?=strtolower($model);?> does not exist" )
+ *           )
+ *      )
+ *   ),
+ *  @OA\Response(
+ *    response=422,
+ *    description="Data Validation Error",
+ *    @OA\JsonContent(
+ *       @OA\Property(property="errorPayload", type="object",
+ *          @OA\Property(property="errors", type="object", ref="#/components/schemas/<?=$model?>"),
+ *       )
+ *    )
+ * )
 * )
 */
 'PUT <?=$item?>/{id}'     => '<?=$item?>/update',
@@ -145,9 +163,23 @@ return [
 *         response=202,
 *         description="Deletion successful",
 *         @OA\JsonContent(
-*           @OA\Property(property="dataPayload", type="object")
+ *         @OA\Property(property="alertifyPayload", type="object",
+ *            @OA\Property(property="message", type="string", example="<?=$item?> deleted succefully"),
+ *            @OA\Property(property="theme", type="string",example="success"),
+ *            @OA\Property(property="type", type="string",example="toast"),
+ *         )
 *         )
 *     ),
+ *   @OA\Response(
+ *     response=404,
+ *     description="Resource not found",
+ *      @OA\JsonContent(
+ *           @OA\Property(property="errorPayload", type="object",
+ *               @OA\Property(property="statusCode", type="integer", example=404 ),
+ *               @OA\Property(property="message", type="string", example="The requested <?=strtolower($model);?> does not exist" )
+ *           )
+ *      )
+ *   )
 * )
 */
 'DELETE <?=$item?>/{id}'  => '<?=$item?>/trash',
@@ -161,9 +193,23 @@ return [
 *         response=202,
 *         description="Restoration successful",
 *         @OA\JsonContent(
-*           @OA\Property(property="dataPayload", type="object")
+ *          @OA\Property(property="alertifyPayload", type="object",
+ *             @OA\Property(property="message", type="string", example="<?=$item?> restored succefully"),
+ *             @OA\Property(property="theme", type="string",example="success"),
+ *             @OA\Property(property="type", type="string",example="toast"),
+ *          )
 *         )
 *     ),
+ *   @OA\Response(
+ *     response=404,
+ *     description="Resource not found",
+ *      @OA\JsonContent(
+ *           @OA\Property(property="errorPayload", type="object",
+ *               @OA\Property(property="statusCode", type="integer", example=404 ),
+ *               @OA\Property(property="message", type="string", example="The requested <?=strtolower($model);?> does not exist" )
+ *           )
+ *      )
+ *   )
 * )
 */
 'PATCH <?=$item?>/{id}'  => '<?=$item?>/trash',

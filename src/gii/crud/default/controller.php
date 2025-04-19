@@ -118,11 +118,11 @@ class <?= $controllerClass ?> extends <?= '\\'.ltrim($generator->baseControllerC
         if ($model->is_deleted) {
             Yii::$app->user->can('<?=$prefix.ucfirst($generator->getControllerID())?>Restore');
             $model->restore();
-            return $this->toastResponse(['statusCode'=>202,'message'=>'<?= $modelClass ?> restored successfully']);
+            return $this->alertifyResponse(['statusCode'=>202,'message'=>'<?= $modelClass ?> restored successfully']);
         } else {
             Yii::$app->user->can('<?=$prefix.ucfirst($generator->getControllerID())?>Delete');
             $model->delete();
-            return $this->toastResponse(['statusCode'=>202,'message'=>'<?= $modelClass ?> deleted successfully']);
+            return $this->alertifyResponse(['statusCode'=>202,'message'=>'<?= $modelClass ?> deleted successfully']);
         }
         return $this->errorResponse($model->getErrors()); 
     }
@@ -139,6 +139,6 @@ $condition = '[' . implode(', ', $condition) . ']';
         if (($model = <?= $modelClass ?>::findOne(<?= $condition ?>)) !== null) {
             return $model;
         }
-        throw new \yii\web\NotFoundHttpException(<?= $generator->generateString('Record not found.') ?>);
+        throw new \yii\web\NotFoundHttpException(<?= $generator->generateString('The requested '.strtolower($modelClass).' does not exist') ?>);
     }
 }

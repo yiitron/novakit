@@ -1,16 +1,21 @@
 <?php
 
 namespace yiitron\novakit\controllers\console;
-
+/**
+ * VoyageController handles the migration process for multi-tenant schemas.
+ * It allows for applying and reverting migrations for each tenant schema.
+ * 
+ * @package yiitron\novakit\controllers\console
+ */
 use Yii;
 use yii\db\Query;
 use yii\rbac\Item;
-use yii\rbac\DbManager;
 use yii\helpers\Console;
 use yii\console\ExitCode;
 use iam\hooks\AuthConfigs;
 use yii\helpers\ArrayHelper;
 use iam\models\static\rbac\AuthItem;
+use yiitron\novakit\auth\AuthManager;
 
 class VoyageController extends \yii\console\controllers\MigrateController
 {
@@ -160,6 +165,12 @@ class VoyageController extends \yii\console\controllers\MigrateController
     }
     protected function ensureTableExists()
     {
+        $schemaName = Yii::$app->db->schema->defaultSchema;
+        if (!Yii::$app->db->createCommand("SELECT schema_name FROM information_schema.schemata WHERE schema_name = :schema")
+            ->bindValue(':schema', $schemaName)
+            ->queryScalar()) {
+            Yii::$app->db->createCommand("CREATE SCHEMA IF NOT EXISTS $schemaName")->execute();
+        }
         $tableName = Yii::$app->db->tablePrefix . 'tenants';
         if (Yii::$app->db->schema->getTableSchema($tableName) === null) {
             // Suppress migration output
@@ -328,7 +339,7 @@ class VoyageController extends \yii\console\controllers\MigrateController
     protected function updateRbac()
     {
         $authManager = Yii::$app->getAuthManager();
-        if ($authManager instanceof DbManager) {
+        if ($authManager instanceof AuthManager) {
             $this->stdout("Updating RBAC...\n", Console::FG_CYAN);
             $auth = AuthConfigs::authManager();
             //default roles
