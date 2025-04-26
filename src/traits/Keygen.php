@@ -7,15 +7,18 @@ use Yii;
 
 trait Keygen
 {
-	public function pkHash($id, $module = null)
+	public function pkHash($id=null, $module = null)
 	{
+		if($id == null) {
+			$id = $this->cryptID(false, 32);
+		}
 		$module = $module ?? (Yii::$app instanceof \yii\web\Application && Yii::$app->controller ? Yii::$app->controller->module->id : $module);
 		$key = hash_hmac('sha256', md5($id), sha1(Yii::$app->id . '/' . $module));
 		return sprintf('%x', crc32($key));
 	}
 	public  function cryptID($numerical = false, $randandomStringLength = 15)
 	{
-		$randomString = $this->password($randandomStringLength, true, 'lud');
+		$randomString = $this->generatePassword($randandomStringLength, true, 'lud');
 		$s = uniqid($randomString, true);
 		$hex = bin2hex(substr($s, 0, 5));
 		$dec = substr($s, -6) + date('Ym');
@@ -50,7 +53,7 @@ trait Keygen
 		if (strpos($available_sets, 'd') !== false)
 			$sets[] = '0123456789';
 		if (strpos($available_sets, 's') !== false)
-			$sets[] = '!@#$%&*?_=+\:,./^|~<>{}[];"';
+			$sets[] = '!@#$%&*`()?_=+\:,./^|~<>{}[];\'\"';
 
 		$all = '';
 		$password = '';

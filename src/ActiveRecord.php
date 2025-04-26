@@ -2,13 +2,14 @@
 
 namespace  yiitron\novakit;
 
-use yiitron\novakit\audit\AuditBehavior;
 use Yii;
 use yii\helpers\Json;
 use yiitron\novakit\traits\Keygen;
 use yiitron\novakit\traits\Status;
 use yiitron\novakit\behaviors\Delete;
 use yiitron\novakit\behaviors\Creator;
+use yiitron\novakit\audit\AuditBehavior;
+use yiitron\novakit\traits\ServiceConsumer;
 
 class ActiveRecord extends \yii\db\ActiveRecord
 {
@@ -33,14 +34,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
 			return array_merge(parent::behaviors(), $behaviors);
 		}
 	}
-	public function afterFind()
-	{
-		if ($this->hasAttribute('status')) {
-			$status = ($this->is_deleted == '1') ? $this->is_deleted : $this->status;
-			$this->recordStatus = $this->loadStatus('SC'.$status);
-		}
-		return parent::afterFind();
-	}
+	
 	public static function getCacheKey($id, $all = false)
 	{
 		$class = explode('\\', static::class);
@@ -56,7 +50,15 @@ class ActiveRecord extends \yii\db\ActiveRecord
 	{
 		return isset($_SERVER['APP_CACHE_DURATION']) ? $_SERVER['APP_CACHE_DURATION'] : 1800;
 	}
-	public static function findOne($condition)
+	public function afterFind()
+	{
+		if ($this->hasAttribute('status')) {
+			$status = ($this->is_deleted == '1') ? $this->is_deleted : $this->status;
+			$this->recordStatus = $this->loadStatus('SC' . $status);
+		}
+		return parent::afterFind();
+	}
+	/* public static function findOne($condition)
 	{
 		// Generate a unique cache key
 		$cacheKey = static::getCacheKey($condition);
@@ -67,7 +69,10 @@ class ActiveRecord extends \yii\db\ActiveRecord
 			// Construct the model directly from cached attributes
 			$model = new static();
 			$model->setAttributes($cachedAttributes, false);
-			$model->isNewRecord = false; // Mark as an existing record
+			$model->isNewRecord = false; // Mark as not new
+			if (array_key_exists('recordStatus', $cachedAttributes)) {
+				$model->recordStatus = $cachedAttributes['recordStatus'];
+			}
 			return $model;
 		}
 		// If not cached, fetch from the database
@@ -81,7 +86,8 @@ class ActiveRecord extends \yii\db\ActiveRecord
 			]);
 		}
 		return $model;
-	}
+	} */
+	
 	/* public static function findAll($conditions)
 	{
 		// Generate a unique cache key
@@ -114,5 +120,5 @@ class ActiveRecord extends \yii\db\ActiveRecord
 		parent::afterDelete();
 		$cacheKey = static::getCacheKey($this->primaryKey);
 		Yii::$app->redis->del($cacheKey); // Remove cache for deleted model
-	}	
+	}
 }

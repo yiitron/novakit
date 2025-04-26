@@ -23,7 +23,6 @@ class BaseMenu extends \yii\base\Component
     }
     protected function checkRights($permission)
     {
-        return true;
         if (\Yii::$app->user->can($permission)) {
             return true;
         }

@@ -55,16 +55,22 @@ class <?= $className ?> extends \<?=(explode('\\',$generator->ns))[0].'\hooks\\'
      */
     public function fields()
     {
-        return array_merge(
-            parent::fields(), 
+        return  
             [
         <?php foreach ($properties as $property => $data): 
             $field="'".$property."'";
+            if($property == 'status'){
+                $field = "'status' => function () {
+                    return \$this->recordStatus;
+                }";
+            }
+            if($property == 'created_at' || $property == 'updated_at' || $property == 'is_deleted' || $property == 'id' || $property == 'crypt_id'){
+                continue;
+            }
         ?>
     <?= "{$field}," . "\n" ?>
         <?php endforeach; ?>
-    ]
-        );
+    ];
     }
     /**
      * {@inheritdoc}
@@ -73,18 +79,7 @@ class <?= $className ?> extends \<?=(explode('\\',$generator->ns))[0].'\hooks\\'
     {
         return [<?= empty($rules) ? '' : ("\n            " . implode(",\n            ", $rules) . ",\n        ") ?>];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-<?php foreach ($labels as $name => $label): ?>
-            <?= "'$name' => " . $generator->generateString($label) . ",\n" ?>
-<?php endforeach; ?>
-        ];
-    }
+    
 <?php foreach ($relations as $name => $relation): ?>
 
     /**

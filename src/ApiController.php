@@ -4,8 +4,9 @@ namespace yiitron\novakit;
 
 use Yii;
 use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
+use yii\filters\auth\HttpBearerAuth;
+use yiitron\novakit\traits\ServiceConsumer;
 
 class ApiController extends Controller
 {
@@ -76,7 +77,7 @@ class ApiController extends Controller
         if (!$options['oneRecord']) {
             return [
                 'dataPayload' => [
-                    'data' => $data->models ?: 'No records available',
+                    'data' => $data->getModels() ?: 'No records available',
                     'countOnPage' => $data->count,
                     'totalCount' => $data->totalCount,
                     'perPage' => $data->pagination->pageSize,

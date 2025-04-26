@@ -1,6 +1,6 @@
 <?php
 
-namespace yiitron\novakit;
+namespace yiitron\novakit\traits;
 
 use Yii;
 use yii\helpers\Url;
@@ -43,7 +43,7 @@ trait ServiceConsumer
 
         $response = $client->$method($url, $data, $this->getHeaders(), $options)->send();
 
-        return $response->isOk ? $response->data : null;
+        return $response->isOk ? $response->data['dataPayload']['data'] : null;
     }
 
     private function getBaseUrl(): string

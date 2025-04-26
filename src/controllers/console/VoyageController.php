@@ -345,7 +345,7 @@ class VoyageController extends \yii\console\controllers\MigrateController
             //default roles
             $this->stdout("*** Creating default roles...\n", Console::FG_YELLOW);
             if (!$auth->getChildren('su')) {
-                foreach (['su' => 'Super User', 'editor' => 'Editor', 'creator' => 'Creator', 'viewer' => 'Viewer', 'api' => 'API User', 'deletor' => 'Deletor'] as $key => $value) {
+                foreach (['su' => 'Super User', 'editor' => 'Editor', 'creator' => 'Creator', 'viewer' => 'Viewer', 'api' => 'API User', 'deletor' => 'Deletor', 'restore' => 'Restore'] as $key => $value) {
                     $model = new AuthItem(null);
                     $model->type = Item::TYPE_ROLE;
                     $model->name = $key;
@@ -386,6 +386,9 @@ class VoyageController extends \yii\console\controllers\MigrateController
                         } elseif (str_contains($str, 'delete') || str_contains($str, 'remove') || str_contains($str, 'destroy') || str_contains($str, 'trash')) {
                             (new AuthItem($auth->getRole('deletor')))->addChildren([$model->name]);
                             $this->stdout("    > Permission: $model->name mounted to deletor role... done (time: " . sprintf('%.3f', (microtime(true) - $start)) . "s)\n", Console::FG_GREEN);
+                        } elseif (str_contains($str, 'restore')) {
+                            (new AuthItem($auth->getRole('restore')))->addChildren([$model->name]);
+                            $this->stdout("    > Permission: $model->name mounted to restore role... done (time: " . sprintf('%.3f', (microtime(true) - $start)) . "s)\n", Console::FG_GREEN);
                         } else {
                             (new AuthItem($auth->getRole('su')))->addChildren([$model->name]);
                             $this->stdout("    > Permission: $model->name mounted to super user role... done (time: " . sprintf('%.3f', (microtime(true) - $start)) . "s)\n", Console::FG_GREEN);
