@@ -8,6 +8,10 @@ use yii\helpers\Url;
 trait ServiceConsumer
 {
     /**
+     * Trait ServiceConsumer
+     * 
+     * @author Crackit Technologies
+     * 
      * Example Request:
      * 
      * This function can be used to send a request to an external service.
