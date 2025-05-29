@@ -1,12 +1,14 @@
 <?php
 
 namespace yiitron\novakit\controllers\console;
+
 /**
  * VoyageController handles the migration process for multi-tenant schemas.
  * It allows for applying and reverting migrations for each tenant schema.
  * 
  * @package yiitron\novakit\controllers\console
  */
+
 use Yii;
 use yii\db\Query;
 use yii\rbac\Item;
@@ -351,8 +353,12 @@ class VoyageController extends \yii\console\controllers\MigrateController
                     $model->name = $key;
                     $model->data = $value;
                     $model->save(false);
+                    if ($key === 'su') {
+                        $auth->assign($auth->getRole($key), 1); // Assign the super user role to the first user (usually admin)
+                    }
                     $this->stdout("    > Role: $value created.\n", Console::FG_GREEN);
                 }
+
                 $this->stdout("Default roles created successfully.\n", Console::FG_CYAN);
             } else {
                 $this->stdout("Default roles mounted.\n", Console::FG_CYAN);

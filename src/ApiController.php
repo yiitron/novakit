@@ -12,29 +12,37 @@ class ApiController extends Controller
 {
     use ServiceConsumer;
     public $enableCsrfValidation = false;
+    public function beforeAction($action)
+    {
+        Yii::info(Yii::$app->request->headers->toArray(), 'debug');
+        return parent::beforeAction($action);
+    }
 
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
 
+        $allowedDomains = Yii::$app->params['allowedDomains'] ?? ['*'];
+
         $behaviors['corsFilter'] = [
             'class' => Cors::class,
             'cors'  => [
-                'Origin'                           => Yii::$app->params['allowedDomains'],
-                'Access-Control-Allow-Origin'      => Yii::$app->params['allowedDomains'],
-                'Access-Control-Request-Headers'   => ['*'],
-                'Access-Control-Request-Method'    => ['POST', 'PUT', 'PATCH', 'GET', 'DELETE', 'HEAD'],
+                'Origin' => $allowedDomains,
+                'Access-Control-Allow-Origin' => $allowedDomains,
                 'Access-Control-Allow-Credentials' => true,
-                'Access-Control-Allow-Headers'     => ['Content-Type', 'Authorization'],
-                'Access-Control-Max-Age'           => 3600,
+                'Access-Control-Max-Age' => 3600,
+                'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Request-Method' => ['POST', 'PUT', 'PATCH', 'GET', 'DELETE', 'HEAD'],
+                'Access-Control-Allow-Headers' => ['Content-Type', 'Authorization'],
             ],
         ];
 
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::class,
-            'except' => Yii::$app->params['safeEndpoints'],
+            'except' => Yii::$app->params['safeEndpoints'] ?? [],
         ];
+
         return $behaviors;
     }
 
