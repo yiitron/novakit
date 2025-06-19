@@ -17,6 +17,7 @@ use yii\console\ExitCode;
 use iam\hooks\AuthConfigs;
 use yii\helpers\ArrayHelper;
 use iam\models\static\rbac\AuthItem;
+use Psy\Command\ExitCommand;
 use yiitron\novakit\auth\AuthManager;
 
 class VoyageController extends \yii\console\controllers\MigrateController
@@ -33,6 +34,8 @@ class VoyageController extends \yii\console\controllers\MigrateController
     }
     public function actionUp($limit = 0)
     {
+       // $this->stdout($this->db->schemaMap[$_SERVER['CORE_DB_DRIVER']]."Starting migration process...\n", Console::FG_CYAN);
+        //return ExitCode::UNSPECIFIED_ERROR;
         if (isset($_SERVER['APP_MODE']) && $_SERVER['APP_MODE'] === strtolower('multi')) {
             if (explode(':', Yii::$app->db->dsn)[0] !== "pgsql") {
                 $this->stdout("Multi mode is configured to only work with PostgreSQL.\n", Console::FG_RED);
@@ -224,8 +227,14 @@ class VoyageController extends \yii\console\controllers\MigrateController
             $migrationPaths[] = [$this->getNamespacePath($namespace), $namespace];
         }
         $migrations = [];
-        // Get the current schema from the DB connection (assuming it was set already)
-        $currentSchema = $this->db->schemaMap[$_SERVER['CORE_DB_DRIVER']]['defaultSchema'];
+
+        // Determine current schema for multi-tenant or single mode
+        if (isset($_SERVER['APP_MODE']) && $_SERVER['APP_MODE'] === strtolower('multi')) {
+            $currentSchema = $this->db->schemaMap[$_SERVER['CORE_DB_DRIVER']]['defaultSchema'];
+        } else {
+            $currentSchema = null; // single mode, no schema filtering
+        }
+
         foreach ($migrationPaths as $item) {
             list($migrationPath, $namespace) = $item;
             if (!file_exists($migrationPath)) {
@@ -246,8 +255,8 @@ class VoyageController extends \yii\console\controllers\MigrateController
                     if (!class_exists($class, false)) {
                         require_once $path;
                     }
-                    // Check if the migration has filtering properties.
-                    if (class_exists($class)) {
+                    // Handle schema filtering only in multi-tenant mode
+                    if ($currentSchema !== null && class_exists($class)) {
                         $reflection = new \ReflectionClass($class);
                         $defaultProperties = $reflection->getDefaultProperties();
 
@@ -278,21 +287,32 @@ class VoyageController extends \yii\console\controllers\MigrateController
     }
     protected function createMigrationHistoryTable()
     {
-        $schema = $this->db->schemaMap[$_SERVER['CORE_DB_DRIVER']]['defaultSchema'];
-        $this->stdout("Checking migration history table for schema: {$schema}...\n", Console::FG_CYAN);
+        // Determine schema and table name
+        if (isset($_SERVER['APP_MODE']) && $_SERVER['APP_MODE'] === strtolower('multi')) {
+            $schema = $this->db->schemaMap[$_SERVER['CORE_DB_DRIVER']]['defaultSchema'];
+            $this->stdout("Checking migration history table for schema: {$schema}...\n", Console::FG_CYAN);
+        } else {
+            $schema = null;
+            $this->stdout("Checking migration history table (single mode)...\n", Console::FG_CYAN);
+        }
+
         // Check if table already exists
-        if ($this->db->createCommand("SELECT to_regclass('$this->migrationTable')")->queryScalar() !== null) {
+        if ($this->db->schema->getTableSchema($this->migrationTable, true) !== null) {
             $this->stdout("Migration history table already exists. Skipping creation.\n", Console::FG_CYAN);
             return;
         }
-        $this->stdout("*** Creating migration history table for schema: {$schema}...\n", Console::FG_GREEN);
+
+        $this->stdout("*** Creating migration history table" . ($schema ? " for schema: {$schema}" : "") . "...\n", Console::FG_GREEN);
+
         // Create table
         $this->db->createCommand()->createTable($this->migrationTable, [
             'version' => 'VARCHAR(180) NOT NULL',
             'apply_time' => 'INTEGER',
         ])->execute();
+
         // Add primary key
         $this->db->createCommand()->addPrimaryKey('pk_migration_version', $this->migrationTable, 'version')->execute();
+
         $this->stdout("Migration history table created successfully.\n");
     }
     protected function getMigrationHistory($limit)
